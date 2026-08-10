@@ -16,6 +16,7 @@ pub const SCOPE: &str = "occasion_minimize";
 
 #[cacheable]
 struct Entry {
+  pub cache_key: u64,
   #[cacheable(with=AsPreset)]
   pub source: BoxSource,
   pub extracted_comments: Option<ExtractedCommentsEntry>,
@@ -109,6 +110,7 @@ impl Occasion for MinimizeOccasion {
       .filter_map(|key| {
         let entry = artifact.entries.get(key)?;
         let storage_entry = Entry {
+          cache_key: key.0,
           source: entry.source.clone(),
           extracted_comments: entry
             .extracted_comments
@@ -149,6 +151,10 @@ impl Occasion for MinimizeOccasion {
       };
       match self.codec.decode::<Entry>(&value) {
         Ok(entry) => {
+          if entry.cache_key != key.0 {
+            tracing::warn!("minimize persistent cache entry key mismatch");
+            continue;
+          }
           entries.insert(
             key,
             CachedMinimizeEntry {
