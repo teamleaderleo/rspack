@@ -109,8 +109,13 @@ function swapMinimizeKeys() {
 
   const original = fs.readFileSync(packPath);
   const records = parsePackRecords(original);
-  if (records.length !== 2 || records.some((record) => record.keyLength !== 8)) {
-    throw new Error(`expected two 8-byte minimize records, found ${records.length}`);
+  if (
+    records.length !== 2 ||
+    records.some((record) => record.keyLength !== 8)
+  ) {
+    throw new Error(
+      `expected two 8-byte minimize records, found ${records.length}`,
+    );
   }
 
   const metaPath = path.join(path.dirname(packPath), '_meta');
